@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: product
+  name: product
+  namespace: ecommerce
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+spec:
+  #replicas: 2
+  selector:
+    matchLabels:
+      app: product
+  # strategy:
+  #   type: RollingUpdate
+  #   rollingUpdate:
+  #     maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: product
+    spec:
+      containers:
+        - image: rahmaahmed2002/depi_gp-product-service:v1
+          name: product-service
+          ports:
+            - containerPort: 3002
+          env:
+            - name: MONGO_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: ecommerce-configmap
+                  key: PRODUCT_MONGO_URI
+            - name: REDIS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: ecommerce-configmap
+                  key: REDIS_URL
+            - name: ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: ecommerce-secrets
+                  key: ACCESS_TOKEN
+          resources:
+            requests:
+              memory: "200Mi"
+              cpu: "200m"
+            limits:
+              memory: "500Mi"
+              cpu: "500m"
+          # 1. THE LOCK: Gives the app plenty of time to boot and connect to DB
+          # startupProbe:
+          #   httpGet:
+          #     path: /user
+          #     port: 3001
+          #   initialDelaySeconds: 5
+          #   periodSeconds: 5
+          #   failureThreshold: 6 # 6 attempts * 5s = Allows up to 30 seconds to boot up safely
+          #   timeoutSeconds: 2
+
+          # # 2. THE GUARDIAN: Only checks AFTER startupProbe passes. Safely monitors deadlocks.
+          # livenessProbe:
+          #   httpGet:
+          #     path: /product
+          #     port: 3002
+          #   periodSeconds: 15 # Relaxed frequency from 5s to 15s to save CPU
+          #   timeoutSeconds: 2
+          #   failureThreshold: 3
+
+          # # 3. THE ROUTER: Controls if Traefik sends internet traffic here
+          # readinessProbe:
+          #   httpGet:
+          #     path: /product
+          #     port: 3002
+          #   initialDelaySeconds: 5 # Gives it a slight cushion
+          #   periodSeconds: 10
+          #   timeoutSeconds: 2
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: product
+  name: product
+  namespace: ecommerce
+spec:
+  ports:
+    - port: 3002
+      protocol: TCP
+      targetPort: 3002
+  selector:
+    app: product
+  type: ClusterIP

@@ -1,0 +1,144 @@
+# route for frontend
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: frontend-route
+  namespace: ecommerce
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+spec:
+  entryPoints:
+    - web # port 80
+  routes:
+    - kind: Rule
+      match: PathPrefix(`/`)
+      priority: 1 # Set a priority
+      services:
+        # Target a Kubernetes Service
+        - kind: Service
+          name: frontend
+          # Customize the connection between Traefik and the backend
+          port: 3000
+
+---
+# route for user service
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: user-route
+  namespace: ecommerce
+spec:
+  entryPoints:
+    - web
+  routes:
+    - kind: Rule
+      match: PathPrefix(`/api/user/`)
+      middlewares:
+        - name: user-mw
+      priority: 10 # Set a priority
+      services:
+        # Target a Kubernetes Service
+        - kind: Service
+          name: user
+          # Customize the connection between Traefik and the backend
+          port: 3001
+
+---
+# route for product service
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: product-route
+  namespace: ecommerce
+spec:
+  entryPoints:
+    - web # port 80
+  routes:
+    - kind: Rule
+      match: PathPrefix(`/api/product/`)
+      middlewares:
+        - name: product-mw
+      priority: 10 # Set a priority
+      services:
+        # Target a Kubernetes Service
+        - kind: Service
+          name: product
+          # Customize the connection between Traefik and the backend
+          port: 3002
+
+---
+# route for cart service
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: cart-route
+  namespace: ecommerce
+spec:
+  entryPoints:
+    - web # port 80
+  routes:
+    - kind: Rule
+      match: PathPrefix(`/api/cart/`)
+      middlewares:
+        - name: cart-mw
+      priority: 10 # Set a priority
+      services:
+        # Target a Kubernetes Service
+        - kind: Service
+          name: cart
+          # Customize the connection between Traefik and the backend
+          port: 3003
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-dashboard
+  namespace: traefik
+spec:
+  entryPoints:
+    - web # port 80
+  routes:
+    # Matches both the dashboard UI and its internal /data API feeds
+    - match: PathPrefix(`/dashboard`) || PathPrefix(`/api`)
+      kind: Rule
+      priority: 10 # Set a priority
+      services:
+        - name: api@internal # points to traefik's built-in system API
+          kind: TraefikService
+
+---
+# Strip prefix /api/user
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: user-mw
+  namespace: ecommerce
+spec:
+  stripPrefix:
+    prefixes:
+      - /api/user/
+
+---
+# Strip prefix /api/product
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: product-mw
+  namespace: ecommerce
+spec:
+  stripPrefix:
+    prefixes:
+      - /api/product/
+
+---
+# Strip prefix /api/cart
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: cart-mw
+  namespace: ecommerce
+spec:
+  stripPrefix:
+    prefixes:
+      - /api/cart/

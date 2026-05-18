@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cart
+  name: cart
+  namespace: ecommerce
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+spec:
+  #replicas: 2
+  selector:
+    matchLabels:
+      app: cart
+  # strategy:
+  #   type: RollingUpdate
+  #   rollingUpdate:
+  #     maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: cart
+    spec:
+      containers:
+        - image: rahmaahmed2002/depi_gp-cart-service:v1
+          name: cart-service
+          ports:
+            - containerPort: 3003
+          env:
+            - name: MONGO_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: ecommerce-configmap
+                  key: CART_MONGO_URI
+            - name: REDIS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: ecommerce-configmap
+                  key: REDIS_URL
+            - name: ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: ecommerce-secrets
+                  key: ACCESS_TOKEN
+            - name: PRODUCT_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: ecommerce-configmap
+                  key: PRODUCT_SERVICE_URL
+          resources:
+            requests:
+              memory: "200Mi"
+              cpu: "200m"
+            limits:
+              memory: "500Mi"
+              cpu: "500m"
+          # 1. THE LOCK: Gives the app plenty of time to boot and connect to DB
+          # startupProbe:
+          #   httpGet:
+          #     path: /user
+          #     port: 3001
+          #   initialDelaySeconds: 5
+          #   periodSeconds: 5
+          #   failureThreshold: 6 # 6 attempts * 5s = Allows up to 30 seconds to boot up safely
+          #   timeoutSeconds: 2
+
+          # # 2. THE GUARDIAN: Only checks AFTER startupProbe passes. Safely monitors deadlocks.
+          # livenessProbe:
+          #   httpGet:
+          #     path: /user
+          #     port: 3001
+          #   periodSeconds: 15 # Relaxed frequency from 5s to 15s to save CPU
+          #   timeoutSeconds: 2
+          #   failureThreshold: 3
+
+          # # 3. THE ROUTER: Controls if Traefik sends internet traffic here
+          # readinessProbe:
+          #   httpGet:
+          #     path: /user
+          #     port: 3001
+          #   initialDelaySeconds: 5 # Gives it a slight cushion
+          #   periodSeconds: 10
+          #   timeoutSeconds: 2
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: cart
+  name: cart
+  namespace: ecommerce
+spec:
+  ports:
+    - port: 3003
+      protocol: TCP
+      targetPort: 3003
+  selector:
+    app: cart
+  type: ClusterIP
