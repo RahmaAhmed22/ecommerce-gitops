@@ -1,0 +1,49 @@
+deployment:
+  enabled: true
+  kind: Deployment
+  replicas: 2
+resources:
+  limits:
+    cpu: 500m
+    memory: 256Mi
+  requests:
+    cpu: 250m
+    memory: 128Mi
+
+ports:
+  web:
+    exposedPort: 80
+
+# Enable Dashboard
+ingressRoute:
+  dashboard:
+    enabled: false
+
+# EKS Service Annotations
+service:
+  enabled: true
+  type: LoadBalancer
+  annotations:
+    # Use the modern Network Load Balancer (NLB)
+    service.beta.kubernetes.io/aws-load-balancer-type: "external"
+    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "instance"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+
+# Gateway API Provider
+providers:
+  kubernetesCRD:
+    enabled: true
+    allowCrossNamespace: true
+    namespaces: []
+
+# Helm gives Traefik Cluster-Wide Access (without it traefik won't be able to see other namespaces)
+rbac:
+  enabled: true
+  namespaced: false
+  aggregateTo:
+    - view
+logs:
+  general:
+    level: INFO
+  access:
+    enabled: true

@@ -2,8 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: cart
-  name: cart
+    app: product
+  name: product
   namespace: ecommerce
   annotations:
     argocd.argoproj.io/sync-wave: "4"
@@ -11,7 +11,7 @@ spec:
   #replicas: 2
   selector:
     matchLabels:
-      app: cart
+      app: product
   # strategy:
   #   type: RollingUpdate
   #   rollingUpdate:
@@ -19,19 +19,19 @@ spec:
   template:
     metadata:
       labels:
-        app: cart
+        app: product
     spec:
       containers:
-        - image: rahmaahmed2002/depi_gp-cart-service:v1
-          name: cart-service
+        - image: rahmaahmed2002/depi_gp-product-service:TAG
+          name: product-service
           ports:
-            - containerPort: 3003
+            - containerPort: 3002
           env:
             - name: MONGO_URI
               valueFrom:
                 configMapKeyRef:
                   name: ecommerce-configmap
-                  key: CART_MONGO_URI
+                  key: PRODUCT_MONGO_URI
             - name: REDIS_URL
               valueFrom:
                 configMapKeyRef:
@@ -42,11 +42,6 @@ spec:
                 secretKeyRef:
                   name: ecommerce-secrets
                   key: ACCESS_TOKEN
-            - name: PRODUCT_SERVICE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: ecommerce-configmap
-                  key: PRODUCT_SERVICE_URL
           resources:
             requests:
               memory: "200Mi"
@@ -67,8 +62,8 @@ spec:
           # # 2. THE GUARDIAN: Only checks AFTER startupProbe passes. Safely monitors deadlocks.
           # livenessProbe:
           #   httpGet:
-          #     path: /user
-          #     port: 3001
+          #     path: /product
+          #     port: 3002
           #   periodSeconds: 15 # Relaxed frequency from 5s to 15s to save CPU
           #   timeoutSeconds: 2
           #   failureThreshold: 3
@@ -76,8 +71,8 @@ spec:
           # # 3. THE ROUTER: Controls if Traefik sends internet traffic here
           # readinessProbe:
           #   httpGet:
-          #     path: /user
-          #     port: 3001
+          #     path: /product
+          #     port: 3002
           #   initialDelaySeconds: 5 # Gives it a slight cushion
           #   periodSeconds: 10
           #   timeoutSeconds: 2
@@ -87,14 +82,14 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: cart
-  name: cart
+    app: product
+  name: product
   namespace: ecommerce
 spec:
   ports:
-    - port: 3003
+    - port: 3002
       protocol: TCP
-      targetPort: 3003
+      targetPort: 3002
   selector:
-    app: cart
+    app: product
   type: ClusterIP
