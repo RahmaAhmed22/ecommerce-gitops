@@ -22,7 +22,7 @@ spec:
         app: user
     spec:
       containers:
-        - image: rahmaahmed2002/depi_gp-user-service:TAG
+        - image: rahmaahmed2002/depi_gp-user-service:25
           name: user-service
           ports:
             - containerPort: 3001

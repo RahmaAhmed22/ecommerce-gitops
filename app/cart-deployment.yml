@@ -22,7 +22,7 @@ spec:
         app: cart
     spec:
       containers:
-        - image: rahmaahmed2002/depi_gp-cart-service:TAG
+        - image: rahmaahmed2002/depi_gp-cart-service:19
           name: cart-service
           ports:
             - containerPort: 3003

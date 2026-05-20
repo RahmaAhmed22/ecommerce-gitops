@@ -18,7 +18,7 @@ spec:
         app: frontend
     spec:
       containers:
-        - image: rahmaahmed2002/depi_gp-frontend:TAG
+        - image: rahmaahmed2002/depi_gp-frontend:29
           name: frontend
           ports:
             - containerPort: 3000
