@@ -27,6 +27,8 @@ kind: IngressRoute
 metadata:
   name: user-route
   namespace: ecommerce
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
 spec:
   entryPoints:
     - web
@@ -50,6 +52,8 @@ kind: IngressRoute
 metadata:
   name: product-route
   namespace: ecommerce
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
 spec:
   entryPoints:
     - web # port 80
@@ -73,6 +77,8 @@ kind: IngressRoute
 metadata:
   name: cart-route
   namespace: ecommerce
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
 spec:
   entryPoints:
     - web # port 80
@@ -90,11 +96,14 @@ spec:
           port: 3003
 
 ---
+# route for Traefik Dashboard
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
   name: traefik-dashboard
   namespace: traefik
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
 spec:
   entryPoints:
     - web # port 80
@@ -106,19 +115,6 @@ spec:
       services:
         - name: api@internal # points to traefik's built-in system API
           kind: TraefikService
-
----
-# Strip prefix /api/user
-apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  name: user-mw
-  namespace: ecommerce
-spec:
-  stripPrefix:
-    prefixes:
-      - /api/user/
-
 ---
 # Strip prefix /api/product
 apiVersion: traefik.io/v1alpha1
@@ -126,6 +122,8 @@ kind: Middleware
 metadata:
   name: product-mw
   namespace: ecommerce
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
 spec:
   stripPrefix:
     prefixes:
@@ -138,6 +136,8 @@ kind: Middleware
 metadata:
   name: cart-mw
   namespace: ecommerce
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
 spec:
   stripPrefix:
     prefixes:
