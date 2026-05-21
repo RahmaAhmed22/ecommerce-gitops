@@ -24,7 +24,7 @@ spec:
         app: user
     spec:
       containers:
-        - image: rahmaahmed2002/depi_gp-user-service:25
+        - image: rahmaahmed2002/depi_gp-user-service:7
           name: user-service
           ports:
             - containerPort: 3001
