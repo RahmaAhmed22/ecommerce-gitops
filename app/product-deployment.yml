@@ -49,14 +49,15 @@ spec:
               cpu: "500m"
           livenessProbe:
             httpGet:
-              path: /
+              path: /product
               port: 3002
             initialDelaySeconds: 10
             periodSeconds: 5
           readinessProbe:
             httpGet:
-              path: /
+              path: /product
               port: 3002
+            initialDelaySeconds: 10
             periodSeconds: 5
 
 ---

@@ -54,14 +54,15 @@ spec:
               cpu: "500m"
           livenessProbe:
             httpGet:
-              path: /
+              path: /cart
               port: 3003
             initialDelaySeconds: 10
             periodSeconds: 5
           readinessProbe:
             httpGet:
-              path: /
+              path: /cart
               port: 3003
+            initialDelaySeconds: 10
             periodSeconds: 5
 
 ---
