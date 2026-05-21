@@ -9,6 +9,8 @@ metadata:
     argocd.argoproj.io/sync-wave: "4"
 spec:
   #replicas: 2
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: product
@@ -49,33 +51,6 @@ spec:
             limits:
               memory: "500Mi"
               cpu: "500m"
-          # 1. THE LOCK: Gives the app plenty of time to boot and connect to DB
-          # startupProbe:
-          #   httpGet:
-          #     path: /user
-          #     port: 3001
-          #   initialDelaySeconds: 5
-          #   periodSeconds: 5
-          #   failureThreshold: 6 # 6 attempts * 5s = Allows up to 30 seconds to boot up safely
-          #   timeoutSeconds: 2
-
-          # # 2. THE GUARDIAN: Only checks AFTER startupProbe passes. Safely monitors deadlocks.
-          # livenessProbe:
-          #   httpGet:
-          #     path: /product
-          #     port: 3002
-          #   periodSeconds: 15 # Relaxed frequency from 5s to 15s to save CPU
-          #   timeoutSeconds: 2
-          #   failureThreshold: 3
-
-          # # 3. THE ROUTER: Controls if Traefik sends internet traffic here
-          # readinessProbe:
-          #   httpGet:
-          #     path: /product
-          #     port: 3002
-          #   initialDelaySeconds: 5 # Gives it a slight cushion
-          #   periodSeconds: 10
-          #   timeoutSeconds: 2
 
 ---
 apiVersion: v1
