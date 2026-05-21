@@ -3,8 +3,19 @@ kind: Kustomization
 metadata:
   name: kustomize-apps
 resources:
-  - app/
-  - databases/
-  - namespaces/
-  - configs/
-  - traefik/
+  - app/cart-deployment.yml
+  - app/product-deployment.yml
+  - app/user-deployment.yml
+  - app/frontend-deployment.yml
+
+  - databases/mongo-statefulset.yml
+  - databases/redis-deployment.yml
+
+  - namespaces/namespace.yml
+
+  - configs/configmap.yml
+  - configs/secrets.yml
+
+  - traefik/traefik-ingress.yml
+
+  - voluems/storageclass.yml
