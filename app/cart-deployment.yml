@@ -52,18 +52,18 @@ spec:
             limits:
               memory: "500Mi"
               cpu: "500m"
-          livenessProbe:
-            httpGet:
-              path: /cart
-              port: 3003
-            initialDelaySeconds: 10
-            periodSeconds: 5
-          readinessProbe:
-            httpGet:
-              path: /cart
-              port: 3003
-            initialDelaySeconds: 10
-            periodSeconds: 5
+          # livenessProbe:
+          #   httpGet:
+          #     path: /cart
+          #     port: 3003
+          #   initialDelaySeconds: 10
+          #   periodSeconds: 5
+          # readinessProbe:
+          #   httpGet:
+          #     path: /cart
+          #     port: 3003
+          #   initialDelaySeconds: 10
+          #   periodSeconds: 5
 
 ---
 apiVersion: v1
