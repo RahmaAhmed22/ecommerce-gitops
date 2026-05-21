@@ -18,4 +18,4 @@ resources:
 
   - traefik/traefik-ingress.yml
 
-  - voluems/storageclass.yml
+  - volumes/storageclass.yml
